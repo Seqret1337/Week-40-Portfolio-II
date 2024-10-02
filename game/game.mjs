@@ -158,9 +158,9 @@ function evaluateGameState() {
 }
 
 function updateGameBoardState(move) {
-    const ROW_ID = 0;
-    const COLUMN_ID = 1;
-    gameboard[move[ROW_ID]][move[COLUMN_ID]] = currentPlayer;
+    const row = parseInt(move[0]) - 1;
+    const col = parseInt(move[1]) - 1;
+    gameboard[row][col] = currentPlayer;
 }
 
 async function getGameMoveFromtCurrentPlayer() {
@@ -175,26 +175,26 @@ async function getGameMoveFromtCurrentPlayer() {
 
 function isValidPositionOnBoard(position) {
 
-    if (position.length < 2) {
-        // We where not given two numbers or more.
+    if (position.length !== 2) {
         return false;
     }
 
-    let isValidInput = true;
-    if (position[0] * 1 != position[0] && position[1] * 1 != position[1]) {
-        // Not Numbers
-        inputWasCorrect = false;
-    } else if (position[0] > GAME_BOARD_SIZE && position[1] > GAME_BOARD_SIZE) {
-        // Not on board
-        inputWasCorrect = false;
-    }
-    else if (Number.parseInt(position[0]) != position[0] && Number.parseInt(position[1]) != position[1]) {
-        // Position taken.
-        inputWasCorrect = false;
+    const row = parseInt(position[0]) - 1;
+    const col = parseInt(position[1]) - 1;
+
+    if (isNaN(row) || isNaN(col)) {
+        return false;
     }
 
+    if (row < 0 || row >= GAME_BOARD_SIZE || col < 0 || col >= GAME_BOARD_SIZE) {
+        return false;
+    }
 
-    return isValidInput;
+    if (gameboard[row][col] !== 0) {
+        return false;
+    }
+
+    return true;
 }
 
 function showHUD() {
