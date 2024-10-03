@@ -9,16 +9,6 @@ const GAME_BOARD_SIZE = 3;
 const PLAYER_1 = 1;
 const PLAYER_2 = -1;
 
-/*
-// These are the valid choices for the menu.
-const MENU_CHOICES = {
-    MENU_CHOICE_START_GAME: 1,
-    MENU_CHOICE_SHOW_SETTINGS: 2,
-    MENU_CHOICE_EXIT_GAME: 3
-};
-*/
-//const NO_CHOICE = -1;
-
 let language = DICTIONARY.en;
 let gameboard;
 let currentPlayer;
@@ -80,32 +70,7 @@ async function runGame() {
         isPlaying = await playGame(); // run the actual game 
     }
 }
-/*
-async function showMenu() {
 
-    let choice = NO_CHOICE;  // This variable tracks the choice the player has made. We set it to -1 initially because that is not a valid choice.
-    let validChoice = false;    // This variable tells us if the choice the player has made is one of the valid choices. It is initially set to false because the player has made no choices.
-
-    while (!validChoice) {
-        // Display our menu to the player.
-        clearScreen();
-        print(ANSI.COLOR.YELLOW + language.MENU_TITLE + ANSI.RESET);
-        print(language.MENU_PLAY_GAME);
-        print(language.MENU_SETTINGS);
-        print(language.MENU_EXIT_GAME);
-
-        // Wait for the choice.
-        choice = await askQuestion("");
-
-        // Check to see if the choice is valid.
-        if ([MENU_CHOICES.MENU_CHOICE_START_GAME, MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS, MENU_CHOICES.MENU_CHOICE_EXIT_GAME].includes(Number(choice))) {
-            validChoice = true;
-        }
-    }
-
-    return choice;
-}
-*/
 async function playGame() {
     // Play game..
     let outcome = null;
