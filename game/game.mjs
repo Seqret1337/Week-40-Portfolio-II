@@ -125,36 +125,41 @@ function changeCurrentPlayer() {
 }
 
 function evaluateGameState() {
-    let sum = 0;
     let state = 0;
 
     for (let row = 0; row < GAME_BOARD_SIZE; row++) {
-
-        for (let col = 0; col < GAME_BOARD_SIZE; col++) {
-            sum += gameboard[row][col];
+        let sum = gameboard[row].reduce((a, b) => a + b, 0);
+        if (Math.abs(sum) === GAME_BOARD_SIZE) {
+            return sum / GAME_BOARD_SIZE;
         }
-
-        if (Math.abs(sum) == 3) {
-            state = sum;
-        }
-        sum = 0;
     }
 
     for (let col = 0; col < GAME_BOARD_SIZE; col++) {
-
+        let sum = 0;
         for (let row = 0; row < GAME_BOARD_SIZE; row++) {
             sum += gameboard[row][col];
         }
-
-        if (Math.abs(sum) == 3) {
-            state = sum;
+        if (Math.abs(sum) === GAME_BOARD_SIZE) {
+            return sum / GAME_BOARD_SIZE;
         }
-
-        sum = 0;
     }
 
-    let winner = state / 3;
-    return winner;
+    let mainDiagonalSum = 0;
+    for (let i = 0; i < GAME_BOARD_SIZE; i++) {
+        mainDiagonalSum += gameboard[i][i];
+    }
+    if (Math.abs(mainDiagonalSum) === GAME_BOARD_SIZE) {
+        return mainDiagonalSum / GAME_BOARD_SIZE;
+    }
+    
+    let antiDiagonalSum = 0;
+    for (let i = 0; i < GAME_BOARD_SIZE; i++) {
+        antiDiagonalSum += gameboard[i][GAME_BOARD_SIZE - 1 - i];
+    }
+    if (Math.abs(antiDiagonalSum) === GAME_BOARD_SIZE) {
+        return antiDiagonalSum / GAME_BOARD_SIZE;
+    }
+    return state;
 }
 
 function updateGameBoardState(move) {
