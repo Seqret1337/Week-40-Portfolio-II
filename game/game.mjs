@@ -3,51 +3,72 @@ import { debug, DEBUG_LEVELS } from "./debug.mjs";
 import { ANSI } from "./ansi.mjs";
 import DICTIONARY from "./language.mjs";
 import showSplashScreen from "./splash.mjs";
+import { clear } from "console";
 
 const GAME_BOARD_SIZE = 3;
 const PLAYER_1 = 1;
 const PLAYER_2 = -1;
 
+/*
 // These are the valid choices for the menu.
 const MENU_CHOICES = {
     MENU_CHOICE_START_GAME: 1,
     MENU_CHOICE_SHOW_SETTINGS: 2,
     MENU_CHOICE_EXIT_GAME: 3
 };
-
-const NO_CHOICE = -1;
+*/
+//const NO_CHOICE = -1;
 
 let language = DICTIONARY.en;
 let gameboard;
 let currentPlayer;
 
+const MENU_ACTIONS = [
+    makeMenuItem(language.MENU_PLAY_GAME_PVP, runGame),
+    makeMenuItem(language.MENU_PLAY_GAME_PVC),
+    makeMenuItem(language.MENU_SETTINGS, showSettings),
+    makeMenuItem(language.MENU_EXIT_GAME, exitGame),
+];
+
+const SETTINGS_MENU = [
+    makeMenuItem(language.MENU_CHANGE_LANGUAGE, changeLanguage),
+    makeMenuItem(language.MENU_BACK, function () { currentMenu = MENU_ACTIONS; }),
+]
+
+let currentMenu = MENU_ACTIONS;
 
 clearScreen();
 showSplashScreen();
 setTimeout(start, 2500); // This waites 2.5seconds before calling the function. i.e. we get to see the splash screen for 2.5 seconds before the menue takes over. 
 
+function makeMenuItem(description, action) {
+    return { description, action };
+}
 
+function showMenu(menu) {
+    clearScreen();
+    print(ANSI.COLOR.YELLOW + language.MENU_TITLE + ANSI.RESET);
+    for (let i = 0; i < menu.length; i++) {
+        print((i + 1) + ". " + menu[i].description);
+    }
+}
+
+async function getMenuSelection(menu) {
+    let choice;
+    do {
+        choice = Number(await askQuestion(""));
+    } while (choice < 1 || choice > menu.length);
+    return choice - 1;
+}
 
 //#region game functions -----------------------------
 
 async function start() {
-
-    do {
-
-        let chosenAction = NO_CHOICE;
-        chosenAction = await showMenu();
-
-        if (chosenAction == MENU_CHOICES.MENU_CHOICE_START_GAME) {
-            await runGame();
-        } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS) {
-            await showSettings();
-        } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_EXIT_GAME) {
-            clearScreen();
-            process.exit();
-        }
-
-    } while (true)
-
+    while (true) {
+        showMenu(currentMenu);
+        let menuSelection = await getMenuSelection(currentMenu);
+        await currentMenu[menuSelection].action();
+    }
 }
 
 async function runGame() {
@@ -59,7 +80,7 @@ async function runGame() {
         isPlaying = await playGame(); // run the actual game 
     }
 }
-
+/*
 async function showMenu() {
 
     let choice = NO_CHOICE;  // This variable tracks the choice the player has made. We set it to -1 initially because that is not a valid choice.
@@ -84,7 +105,7 @@ async function showMenu() {
 
     return choice;
 }
-
+*/
 async function playGame() {
     // Play game..
     let outcome = null;
@@ -265,13 +286,32 @@ function clearScreen() {
 }
 
 async function showSettings() {
+    currentMenu = SETTINGS_MENU;
+}
+
+function exitGame() {
+    clearScreen();
+    process.exit();
+}
+
+async function changeLanguage() {
     const languageChoice = await askQuestion("Choose language (en/no): ")
     if (languageChoice.toLowerCase() === "en") {
         language = DICTIONARY.en;
     } else if (languageChoice.toLowerCase() === "no") {
         language = DICTIONARY.no;
     }
+    updateMenuLanguage();
 }
 
+function updateMenuLanguage() {
+    MENU_ACTIONS[0].description = language.MENU_PLAY_GAME_PVP;
+    MENU_ACTIONS[1].description = language.MENU_PLAY_GAME_PVC;
+    MENU_ACTIONS[2].description = language.MENU_SETTINGS;
+    MENU_ACTIONS[3].description = language.MENU_EXIT_GAME;
+
+    SETTINGS_MENU[0].description = language.MENU_CHANGE_LANGUAGE;
+    SETTINGS_MENU[1].description = language.MENU_BACK;
+}
 //#endregion
 
