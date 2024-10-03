@@ -40,7 +40,7 @@ async function start() {
         if (chosenAction == MENU_CHOICES.MENU_CHOICE_START_GAME) {
             await runGame();
         } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS) {
-            ///TODO: Needs implementing
+            await showSettings();
         } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_EXIT_GAME) {
             clearScreen();
             process.exit();
@@ -62,16 +62,16 @@ async function runGame() {
 
 async function showMenu() {
 
-    let choice = -1;  // This variable tracks the choice the player has made. We set it to -1 initially because that is not a valid choice.
+    let choice = NO_CHOICE;  // This variable tracks the choice the player has made. We set it to -1 initially because that is not a valid choice.
     let validChoice = false;    // This variable tells us if the choice the player has made is one of the valid choices. It is initially set to false because the player has made no choices.
 
     while (!validChoice) {
         // Display our menu to the player.
         clearScreen();
-        print(ANSI.COLOR.YELLOW + "MENU" + ANSI.RESET);
-        print("1. Play Game");
-        print("2. Settings");
-        print("3. Exit Game");
+        print(ANSI.COLOR.YELLOW + language.MENU_TITLE + ANSI.RESET);
+        print(language.MENU_PLAY_GAME);
+        print(language.MENU_SETTINGS);
+        print(language.MENU_EXIT_GAME);
 
         // Wait for the choice.
         choice = await askQuestion("");
@@ -117,14 +117,14 @@ async function askWantToPlayAgain() {
 function showGameSummary(outcome) {
     clearScreen();
     if (outcome === 0) {
-        print("It's a draw!");
+        print(language.ITS_A_DRAW);
     } else {
         let winningPlayer = (outcome > 0) ? 1 : 2;
-        print("Winner is player " + winningPlayer);
+        print(language.WINNER_IS_PLAYER + winningPlayer);
     }
     
     showGameBoardWithCurrentState();
-    print("GAME OVER");
+    print(language.GAME_OVER);
 }
 
 function changeCurrentPlayer() {
@@ -184,7 +184,7 @@ function updateGameBoardState(move) {
 async function getGameMoveFromtCurrentPlayer() {
     let position = null;
     do {
-        let rawInput = await askQuestion("Place your mark at: ");
+        let rawInput = await askQuestion(language.PLACE_MARK);
         position = rawInput.split(" ");
     } while (isValidPositionOnBoard(position) == false)
 
@@ -216,11 +216,8 @@ function isValidPositionOnBoard(position) {
 }
 
 function showHUD() {
-    let playerDescription = "one";
-    if (PLAYER_2 == currentPlayer) {
-        playerDescription = "two";
-    }
-    print("Player " + playerDescription + " it is your turn");
+    let playerDescription = currentPlayer === PLAYER_1 ? "one" : "two";
+    print(language.PLAYER_TURN.replace("{0}", playerDescription));
 }
 
 function showGameBoardWithCurrentState() {
@@ -234,7 +231,7 @@ function showGameBoardWithCurrentState() {
             else if (cell > 0) {
                 rowOutput += "X ";
             } else {
-                rowOutput += "O  ";
+                rowOutput += "O ";
             }
         }
 
@@ -267,6 +264,14 @@ function clearScreen() {
     console.log(ANSI.CLEAR_SCREEN, ANSI.CURSOR_HOME, ANSI.RESET);
 }
 
+async function showSettings() {
+    const languageChoice = await askQuestion("Choose language (en/no): ")
+    if (languageChoice.toLowerCase() === "en") {
+        language = DICTIONARY.en;
+    } else if (languageChoice.toLowerCase() === "no") {
+        language = DICTIONARY.no;
+    }
+}
 
 //#endregion
 
