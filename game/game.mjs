@@ -87,7 +87,7 @@ async function showMenu() {
 
 async function playGame() {
     // Play game..
-    let outcome;
+    let outcome = null;
     do {
         clearScreen();
         showGameBoardWithCurrentState();
@@ -95,8 +95,10 @@ async function playGame() {
         let move = await getGameMoveFromtCurrentPlayer();
         updateGameBoardState(move);
         outcome = evaluateGameState();
-        changeCurrentPlayer();
-    } while (outcome == 0)
+        if (outcome === null) {
+            changeCurrentPlayer();
+        }
+    } while (outcome === null)
 
     showGameSummary(outcome);
 
@@ -114,8 +116,13 @@ async function askWantToPlayAgain() {
 
 function showGameSummary(outcome) {
     clearScreen();
-    let winningPlayer = (outcome > 0) ? 1 : 2;
-    print("Winner is player " + winningPlayer);
+    if (outcome === 0) {
+        print("It's a draw!");
+    } else {
+        let winningPlayer = (outcome > 0) ? 1 : 2;
+        print("Winner is player " + winningPlayer);
+    }
+    
     showGameBoardWithCurrentState();
     print("GAME OVER");
 }
@@ -125,7 +132,7 @@ function changeCurrentPlayer() {
 }
 
 function evaluateGameState() {
-    let state = 0;
+    let state = null;
 
     for (let row = 0; row < GAME_BOARD_SIZE; row++) {
         let sum = gameboard[row].reduce((a, b) => a + b, 0);
@@ -159,6 +166,12 @@ function evaluateGameState() {
     if (Math.abs(antiDiagonalSum) === GAME_BOARD_SIZE) {
         return antiDiagonalSum / GAME_BOARD_SIZE;
     }
+    
+    let isBoardFull = gameboard.every(row => row.every(cell => cell !== 0));
+    if (isBoardFull) {
+        return 0;
+    }
+    
     return state;
 }
 
