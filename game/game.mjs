@@ -10,6 +10,7 @@ const PLAYER_1 = 1;
 const PLAYER_2 = -1;
 const EMPTY_CELL = 0;
 const SPLASH_SCREEN_DUARTION = 2500;
+const COMPUTER_THINKING_DELAY = 1500;
 
 const MENU_START_INDEX = 1;
 
@@ -88,7 +89,7 @@ async function playGame(isPvC) {
         let move;
         if (isPvC && currentPlayer === PLAYER_2) {
             print(language.COMPUTER_THINKING);
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, COMPUTER_THINKING_DELAY));
             move = getComputerMove();
         } else {
             move = await getGameMoveFromCurrentPlayer();
