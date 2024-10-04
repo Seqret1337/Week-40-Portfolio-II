@@ -14,7 +14,8 @@ const DICTIONARY = {
         PLACE_MARK: "Place your mark at: ",
         INVALID_CHOICE: "Invalid Choice",
         MENU_CHANGE_LANGUAGE: "Change language",
-        MENU_BACK: "Go back"
+        MENU_BACK: "Go back",
+        COMPUTER_THINKING: "Computer is thinking..."
     },
     no: {
         MENU_TITLE: "MENY",
@@ -31,7 +32,8 @@ const DICTIONARY = {
         PLACE_MARK: "Plasser merket ditt på: ",
         INVALID_CHOICE: "Ikke valgbart",
         MENU_CHANGE_LANGUAGE: "Endre språk",
-        MENU_BACK: "Gå tilbake"
+        MENU_BACK: "Gå tilbake",
+        COMPUTER_THINKING: "Datamaskinen tenker..."
     }
 }
 

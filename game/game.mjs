@@ -8,6 +8,13 @@ import { clear } from "console";
 const GAME_BOARD_SIZE = 3;
 const PLAYER_1 = 1;
 const PLAYER_2 = -1;
+const EMPTY_CELL = 0;
+const SPLASH_SCREEN_DUARTION = 2500;
+
+const MENU_START_INDEX = 1;
+
+const LANGUAGE_EN = "en";
+const LANGUAGE_NO = "no";
 
 let language = DICTIONARY.en;
 let gameboard;
@@ -29,7 +36,7 @@ let currentMenu = MENU_ACTIONS;
 
 clearScreen();
 showSplashScreen();
-setTimeout(start, 2500); // This waites 2.5seconds before calling the function. i.e. we get to see the splash screen for 2.5 seconds before the menue takes over. 
+setTimeout(start, SPLASH_SCREEN_DUARTION); // This waites 2.5seconds before calling the function. i.e. we get to see the splash screen for 2.5 seconds before the menue takes over. 
 
 function makeMenuItem(description, action) {
     return { description, action };
@@ -39,7 +46,7 @@ function showMenu(menu) {
     clearScreen();
     print(ANSI.COLOR.YELLOW + language.MENU_TITLE + ANSI.RESET);
     for (let i = 0; i < menu.length; i++) {
-        print((i + 1) + ". " + menu[i].description);
+        print((i + MENU_START_INDEX) + ". " + menu[i].description);
     }
 }
 
@@ -47,8 +54,8 @@ async function getMenuSelection(menu) {
     let choice;
     do {
         choice = Number(await askQuestion(""));
-    } while (choice < 1 || choice > menu.length);
-    return choice - 1;
+    } while (choice < MENU_START_INDEX || choice > menu.length);
+    return choice - MENU_START_INDEX;
 }
 
 //#region game functions -----------------------------
@@ -78,7 +85,14 @@ async function playGame(isPvC) {
         clearScreen();
         showGameBoardWithCurrentState();
         showHUD();
-        let move = isPvC && currentPlayer === PLAYER_2 ? getComputerMove() : await getGameMoveFromCurrentPlayer();
+        let move;
+        if (isPvC && currentPlayer === PLAYER_2) {
+            print(language.COMPUTER_THINKING);
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            move = getComputerMove();
+        } else {
+            move = await getGameMoveFromCurrentPlayer();
+        }
         updateGameBoardState(move);
         outcome = evaluateGameState();
         if (outcome === null) {
@@ -102,7 +116,7 @@ async function askWantToPlayAgain() {
 
 function showGameSummary(outcome) {
     clearScreen();
-    if (outcome === 0) {
+    if (outcome === EMPTY_CELL) {
         print(language.ITS_A_DRAW);
     } else {
         let winningPlayer = (outcome > 0) ? 1 : 2;
@@ -153,17 +167,17 @@ function evaluateGameState() {
         return antiDiagonalSum / GAME_BOARD_SIZE;
     }
     
-    let isBoardFull = gameboard.every(row => row.every(cell => cell !== 0));
+    let isBoardFull = gameboard.every(row => row.every(cell => cell !== EMPTY_CELL));
     if (isBoardFull) {
-        return 0;
+        return EMPTY_CELL;
     }
     
     return state;
 }
 
 function updateGameBoardState(move) {
-    const row = parseInt(move[0]) - 1;
-    const col = parseInt(move[1]) - 1;
+    const row = parseInt(move[0]) - MENU_START_INDEX;
+    const col = parseInt(move[1]) - MENU_START_INDEX;
     gameboard[row][col] = currentPlayer;
 }
 
@@ -183,8 +197,8 @@ function isValidPositionOnBoard(position) {
         return false;
     }
 
-    const row = parseInt(position[0]) - 1;
-    const col = parseInt(position[1]) - 1;
+    const row = parseInt(position[0]) - MENU_START_INDEX;
+    const col = parseInt(position[1]) - MENU_START_INDEX;
 
     if (isNaN(row) || isNaN(col)) {
         return false;
@@ -194,7 +208,7 @@ function isValidPositionOnBoard(position) {
         return false;
     }
 
-    if (gameboard[row][col] !== 0) {
+    if (gameboard[row][col] !== EMPTY_CELL) {
         return false;
     }
 
@@ -207,14 +221,13 @@ function showHUD() {
 }
 
 function showGameBoardWithCurrentState() {
-    const boardSize = GAME_BOARD_SIZE;
-    const horizontalLine = "+" + "---+".repeat(boardSize);
+    const horizontalLine = "+" + "---+".repeat(GAME_BOARD_SIZE);
 
     print(horizontalLine);
 
-    for (let currentRow = 0; currentRow < boardSize; currentRow++) {
+    for (let currentRow = 0; currentRow < GAME_BOARD_SIZE; currentRow++) {
         let rowOutput = "|";
-        for (let currentCol = 0; currentCol < boardSize; currentCol++) {
+        for (let currentCol = 0; currentCol < GAME_BOARD_SIZE; currentCol++) {
             let cell = gameboard[currentRow][currentCol];
             let cellContent;
             if (cell === 0) {
@@ -268,9 +281,9 @@ function exitGame() {
 
 async function changeLanguage() {
     const languageChoice = await askQuestion("Choose language (en/no): ")
-    if (languageChoice.toLowerCase() === "en") {
+    if (languageChoice.toLowerCase() === LANGUAGE_EN) {
         language = DICTIONARY.en;
-    } else if (languageChoice.toLowerCase() === "no") {
+    } else if (languageChoice.toLowerCase() === LANGUAGE_NO) {
         language = DICTIONARY.no;
     }
     updateMenuLanguage();
@@ -290,8 +303,8 @@ function getComputerMove() {
     let avaliableMoves = [];
     for (let i = 0; i < GAME_BOARD_SIZE; i++) {
         for (let j = 0; j < GAME_BOARD_SIZE; j++) {
-            if (gameboard[i][j] === 0) {
-                avaliableMoves.push([i + 1, j + 1]);
+            if (gameboard[i][j] === EMPTY_CELL) {
+                avaliableMoves.push([i + MENU_START_INDEX, j + MENU_START_INDEX]);
             }
         }
     }
