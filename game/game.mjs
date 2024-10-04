@@ -207,21 +207,28 @@ function showHUD() {
 }
 
 function showGameBoardWithCurrentState() {
-    for (let currentRow = 0; currentRow < GAME_BOARD_SIZE; currentRow++) {
-        let rowOutput = "";
-        for (let currentCol = 0; currentCol < GAME_BOARD_SIZE; currentCol++) {
-            let cell = gameboard[currentRow][currentCol];
-            if (cell == 0) {
-                rowOutput += "_ ";
-            }
-            else if (cell > 0) {
-                rowOutput += "X ";
-            } else {
-                rowOutput += "O ";
-            }
-        }
+    const boardSize = GAME_BOARD_SIZE;
+    const horizontalLine = "+" + "---+".repeat(boardSize);
 
+    print(horizontalLine);
+
+    for (let currentRow = 0; currentRow < boardSize; currentRow++) {
+        let rowOutput = "|";
+        for (let currentCol = 0; currentCol < boardSize; currentCol++) {
+            let cell = gameboard[currentRow][currentCol];
+            let cellContent;
+            if (cell === 0) {
+                cellContent = "   ";
+            }
+            else if (cell === PLAYER_1) {
+                cellContent = ANSI.COLOR.RED + " X " + ANSI.RESET;
+            } else {
+                cellContent = ANSI.COLOR.BLUE + " O " + ANSI.RESET;
+            }
+            rowOutput += cellContent + "|";
+        }
         print(rowOutput);
+        print(horizontalLine);
     }
 }
 
