@@ -14,8 +14,8 @@ let gameboard;
 let currentPlayer;
 
 const MENU_ACTIONS = [
-    makeMenuItem(language.MENU_PLAY_GAME_PVP, runGame),
-    makeMenuItem(language.MENU_PLAY_GAME_PVC),
+    makeMenuItem(language.MENU_PLAY_GAME_PVP, () => runGame(false)),
+    makeMenuItem(language.MENU_PLAY_GAME_PVC, () => runGame(true)),
     makeMenuItem(language.MENU_SETTINGS, showSettings),
     makeMenuItem(language.MENU_EXIT_GAME, exitGame),
 ];
@@ -61,24 +61,24 @@ async function start() {
     }
 }
 
-async function runGame() {
+async function runGame(isPvC = false) {
 
     let isPlaying = true;
 
     while (isPlaying) { // Do the following until the player dos not want to play anymore. 
         initializeGame(); // Reset everything related to playing the game
-        isPlaying = await playGame(); // run the actual game 
+        isPlaying = await playGame(isPvC); // run the actual game 
     }
 }
 
-async function playGame() {
+async function playGame(isPvC) {
     // Play game..
     let outcome = null;
     do {
         clearScreen();
         showGameBoardWithCurrentState();
         showHUD();
-        let move = await getGameMoveFromtCurrentPlayer();
+        let move = isPvC && currentPlayer === PLAYER_2 ? getComputerMove() : await getGameMoveFromCurrentPlayer();
         updateGameBoardState(move);
         outcome = evaluateGameState();
         if (outcome === null) {
@@ -167,7 +167,7 @@ function updateGameBoardState(move) {
     gameboard[row][col] = currentPlayer;
 }
 
-async function getGameMoveFromtCurrentPlayer() {
+async function getGameMoveFromCurrentPlayer() {
     let position = null;
     do {
         let rawInput = await askQuestion(language.PLACE_MARK);
@@ -277,6 +277,18 @@ function updateMenuLanguage() {
 
     SETTINGS_MENU[0].description = language.MENU_CHANGE_LANGUAGE;
     SETTINGS_MENU[1].description = language.MENU_BACK;
+}
+
+function getComputerMove() {
+    let avaliableMoves = [];
+    for (let i = 0; i < GAME_BOARD_SIZE; i++) {
+        for (let j = 0; j < GAME_BOARD_SIZE; j++) {
+            if (gameboard[i][j] === 0) {
+                avaliableMoves.push([i + 1, j + 1]);
+            }
+        }
+    }
+    return avaliableMoves[Math.floor(Math.random() * avaliableMoves.length)];
 }
 //#endregion
 
